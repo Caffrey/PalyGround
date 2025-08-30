@@ -1,0 +1,19 @@
+#pragma once
+#include "XWindows.h"
+#include "SDL3/SDL.h"
+#include "Engine/Engine.h"
+
+class XSDLWindows : public XWindows
+{
+public:
+    
+    
+    void InitWindows() override;
+    void Tick() override;
+    void EventHandle() override;
+
+private:
+    SDL_Window* Windows;
+    SDL_GLContext glContext;
+    XEngine * Engine;
+};
