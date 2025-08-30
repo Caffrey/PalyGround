@@ -1,5 +1,6 @@
 #pragma once
-#include "Renderer/XRenderer.h"
+#include "Modules/Renderer/XRenderer.h"
+#include "Core/World/World.h"
 class XEngine
 {
 public:
@@ -10,6 +11,7 @@ public:
     
 private:
     XRenderer *Renderer;
+    World* SimulationWorld;
 };
 
 static XEngine* GEngine;

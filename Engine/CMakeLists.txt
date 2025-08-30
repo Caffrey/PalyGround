@@ -9,11 +9,13 @@ project(Engine)
 file(GLOB_RECURSE EngineSourceFiles "src/Engine/*.cpp")
 file(GLOB_RECURSE EngineHeaderFiles "src/Engine/*.h")
 
-# add_library(EngineLib STATIC ${EngineSourceFiles} ${EngineHeaderFiles})
-add_executable(XEngine ${EngineSourceFiles} ${EngineHeaderFiles} src/main.cpp)
+file(GLOB_RECURSE EditorSourceFiles "src/Editor/*.cpp")
+file(GLOB_RECURSE EditorHeaderFiles "src/Editor/*.h")
+
+add_executable(XEngine ${EngineSourceFiles} ${EngineHeaderFiles} ${EditorSourceFiles} ${EditorHeaderFiles} src/main.cpp)
+target_include_directories(XEngine PUBLIC src/Editor)
 target_include_directories(XEngine PUBLIC src/Engine)
 target_include_directories(XEngine PUBLIC src)
-
 #-----------------------------
 #控制好库文件和Exe在同一个目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)    # 可执行文件

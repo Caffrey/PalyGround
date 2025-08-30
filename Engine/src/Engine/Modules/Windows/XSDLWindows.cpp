@@ -1,4 +1,4 @@
-#include "Windows/XSDLWindows.h"
+#include "Modules/Windows/XSDLWindows.h"
 
 #include "glad/gl.h"
 #include <SDL3/SDL.h>
@@ -19,6 +19,7 @@ void XSDLWindows::InitWindows()
     glContext = SDL_GL_CreateContext(Windows);
 
     Engine = new XEngine();
+    GEngine = Engine;
 }
 
 void XSDLWindows::Tick()

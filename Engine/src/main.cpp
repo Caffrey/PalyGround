@@ -13,13 +13,13 @@
 #include "glad/gl.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include "Windows/XSDLWindows.h"
-
+#include "XEditor.h"
+#include "Engine/Engine.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
-static XSDLWindows Windows;
+static XEditor *Editor = NULL;
 
 //Todo: Window对接 event
 //Todo :Window整个生命流程正好
@@ -27,8 +27,9 @@ static XSDLWindows Windows;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    Windows.InitWindows();
-
+    XEditor *Editor = new XEditor();
+    GEditor = Editor;
+    GEditor->InitlizedEditor();
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 

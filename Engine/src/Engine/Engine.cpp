@@ -2,16 +2,19 @@
 
 XEngine::XEngine()
 {
-    GEngine = this;
     Renderer = new XRenderer();
+    SimulationWorld = new World();
 }
 
 XEngine::~XEngine()
 {
-    GEngine = nullptr;
 }
 
 void XEngine::Tick()
 {
-    Renderer->Render();
+    SimulationWorld->Tick();
+    SimulationWorld->PhysicalTick();
+    SimulationWorld->RenderWorld();
+    //RenderSystem
+    // Renderer->Render();
 }

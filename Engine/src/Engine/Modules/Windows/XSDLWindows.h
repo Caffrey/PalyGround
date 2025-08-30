@@ -6,8 +6,7 @@
 class XSDLWindows : public XWindows
 {
 public:
-    
-    
+    XSDLWindows(){};
     void InitWindows() override;
     void Tick() override;
     void EventHandle() override;
