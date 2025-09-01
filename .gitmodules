@@ -1,0 +1,6 @@
+[submodule "Engine/src/ThirdPart/vendored/SDL"]
+	path = Engine/src/ThirdPart/vendored/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "Engine/src/ThirdPart/glew"]
+	path = Engine/src/ThirdPart/glew
+	url = https://github.com/nigels-com/glew.git
