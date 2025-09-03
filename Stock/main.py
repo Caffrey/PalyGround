@@ -12,11 +12,11 @@ os.environ["HTTPS_PROXY"] = proxy
 
 def download_stock_data(ticker):
     t = yf.Ticker(ticker)
-    data = t.history(period="max",auto_adjust=False)
+    data = t.history(period="max",auto_adjust=False,interval="1mo")
     return data
 
 def save_to_csv(data,filename):
     data.to_csv(filename)
 
-stock_data = download_stock_data("^GSPC")
-stock_data.to_csv("F:/stock_data.csv")
+stock_data = download_stock_data("PEGA")
+stock_data.to_csv("F:/stock_data_PEGA2.csv")
