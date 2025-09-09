@@ -4,3 +4,12 @@
 [submodule "Engine/src/ThirdPart/glew"]
 	path = Engine/src/ThirdPart/glew
 	url = https://github.com/nigels-com/glew.git
+[submodule "Engine/src/ThirdPart/vk-bootstrap"]
+	path = Engine/src/ThirdPart/vk-bootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap.git
+[submodule "Engine/src/ThirdPart/VulkanMemoryAllocator"]
+	path = Engine/src/ThirdPart/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "Engine/src/ThirdPart/vcpkg"]
+	path = Engine/src/ThirdPart/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
