@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    "vk-bootstrap",
+    "vulkan",
+    "vulkan-memory-allocator",
+    "sdl3"
+  ]
+}

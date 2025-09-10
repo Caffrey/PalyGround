@@ -14,3 +14,8 @@ void XEditor::InitlizedEditor()
     Window = new XSDLWindows();
     Window->InitWindows();
 }
+
+void XEditor::Tick()
+{
+    Window->Tick();
+}

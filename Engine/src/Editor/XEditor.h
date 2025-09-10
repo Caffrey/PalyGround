@@ -10,6 +10,7 @@ public:
     ~XEditor();
     void InitlizedEditor();
 
+    void Tick();
     XWindows *Window;
     XEngine * Engine;
 };

@@ -1,6 +1,5 @@
 #include "Modules/Windows/XSDLWindows.h"
 
-#include "glad/gl.h"
 #include <SDL3/SDL.h>
 
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
@@ -25,6 +24,7 @@ void XSDLWindows::InitWindows()
 void XSDLWindows::Tick()
 {
     XWindows::Tick();
+    GEngine->Tick();
 }
 
 void XSDLWindows::EventHandle()
