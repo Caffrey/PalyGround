@@ -11,8 +11,14 @@ public:
     void Tick() override;
     void EventHandle() override;
 
+    
+    int Width;
+    int Height;
+    SDL_Window* GetWindow(){return Windows;};
 private:
     SDL_Window* Windows;
     SDL_GLContext glContext;
     XEngine * Engine;
+
+
 };

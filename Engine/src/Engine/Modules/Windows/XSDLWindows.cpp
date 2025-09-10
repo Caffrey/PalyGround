@@ -14,7 +14,11 @@ void XSDLWindows::InitWindows()
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         // return SDL_APP_FAILURE;
     }
-    Windows = SDL_CreateWindow("SDLWindow", 640, 480, SDL_WINDOW_OPENGL);
+
+    Width = 640;
+    Height = 480;
+    Windows = SDL_CreateWindow("SDLWindow", Width, Height, SDL_WINDOW_OPENGL);
+    
     glContext = SDL_GL_CreateContext(Windows);
 
     Engine = new XEngine();
