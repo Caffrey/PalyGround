@@ -1,7 +1,10 @@
 #include "Editor/XEditor.h"
 #include "Engine/Modules/Windows/XSDLWindows.h"
 
-XEditor::XEditor()
+
+XEditor* GEditor = nullptr;
+
+XEditor::XEditor(XSDLWindows* Window):XEngine(Window)
 {
 }
 
@@ -9,13 +12,9 @@ XEditor::~XEditor()
 {
 }
 
-void XEditor::InitlizedEditor()
+void XEditor::InitEditor()
 {
-    Window = new XSDLWindows();
-    Window->InitWindows();
+    InitEngine();
+    GEditor = this;
 }
 
-void XEditor::Tick()
-{
-    Window->Tick();
-}

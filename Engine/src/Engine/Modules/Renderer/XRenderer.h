@@ -1,12 +1,13 @@
 #pragma once
 
 
+#include "RHIInterface.h"
 #include "Core/World/World.h"
 #include "Core/World/Components/Camera.h"
 class XRenderer 
 {
 public:
-    void Render(Camera* camera,World *Scene);
+    void Render(Camera* camera,World *Scene, RHIInterface* RHIInterface);
 
     void Culling();
     void RenderGbuffer();

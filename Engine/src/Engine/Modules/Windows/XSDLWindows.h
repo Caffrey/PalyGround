@@ -17,8 +17,4 @@ public:
     SDL_Window* GetWindow(){return Windows;};
 private:
     SDL_Window* Windows;
-    SDL_GLContext glContext;
-    XEngine * Engine;
-
-
 };

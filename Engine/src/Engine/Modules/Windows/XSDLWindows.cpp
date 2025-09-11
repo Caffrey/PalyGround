@@ -17,18 +17,16 @@ void XSDLWindows::InitWindows()
 
     Width = 640;
     Height = 480;
-    Windows = SDL_CreateWindow("SDLWindow", Width, Height, SDL_WINDOW_OPENGL);
-    
-    glContext = SDL_GL_CreateContext(Windows);
 
-    Engine = new XEngine();
-    GEngine = Engine;
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
+    Windows = SDL_CreateWindow("SDLWindow", Width, Height, window_flags);
+    auto error= SDL_GetError();
+    
 }
 
 void XSDLWindows::Tick()
 {
     XWindows::Tick();
-    GEngine->Tick();
 }
 
 void XSDLWindows::EventHandle()

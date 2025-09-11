@@ -3,6 +3,12 @@
     "vk-bootstrap",
     "vulkan",
     "vulkan-memory-allocator",
-    "sdl3"
+    {
+      "name":"sdl3",
+      "features":
+      [
+        "vulkan"
+      ]
+    }
   ]
 }

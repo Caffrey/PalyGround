@@ -1,11 +1,54 @@
 #include "RHIInterface.h"
+
+#include <valarray>
 #include <SDL3/SDL_vulkan.h>
+#include "Modules/Windows/XSDLWindows.h"
 
 
 
 void RHIInterface::Init(XSDLWindows* Window)
 {
     this->SDLWindow = Window;
+}
+
+void VulkanUtils::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout currentLayout,
+    VkImageLayout newLayout)
+{
+    VkImageMemoryBarrier2 imageBarrier {.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2};
+    imageBarrier.pNext = nullptr;
+
+    imageBarrier.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    imageBarrier.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+    imageBarrier.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    imageBarrier.dstAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT | VK_ACCESS_2_MEMORY_READ_BIT;
+
+    imageBarrier.oldLayout = currentLayout;
+    imageBarrier.newLayout = newLayout;
+
+    VkImageAspectFlags aspectMask = (newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+    imageBarrier.subresourceRange = image_subresource_range(aspectMask);
+    imageBarrier.image = image;
+
+    VkDependencyInfo depInfo {};
+    depInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    depInfo.pNext = nullptr;
+
+    depInfo.imageMemoryBarrierCount = 1;
+    depInfo.pImageMemoryBarriers = &imageBarrier;
+
+    vkCmdPipelineBarrier2(cmd, &depInfo);
+}
+
+VkImageSubresourceRange VulkanUtils::image_subresource_range(VkImageAspectFlags aspectMask)
+{
+    VkImageSubresourceRange subImage {};
+    subImage.aspectMask = aspectMask;
+    subImage.baseMipLevel = 0;
+    subImage.levelCount = VK_REMAINING_MIP_LEVELS;
+    subImage.baseArrayLayer = 0;
+    subImage.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+    return subImage;
 }
 
 void VulkanRHIInterface::Init(XSDLWindows* Window)
@@ -17,22 +60,70 @@ void VulkanRHIInterface::Init(XSDLWindows* Window)
     
 }
 
+//fence wait last frame
 void VulkanRHIInterface::BeginDraw()
 {
+    //singal wait
     vkWaitForFences(this->Device,1,&GetCurrentFrame().RenderFence,true,1000000);
     vkResetFences(this->Device,1,&GetCurrentFrame().RenderFence);
 
-    uint32_t swapchainImageIndex;
-    vkAcquireNextImageKHR(this->Device, this->SwpahChain, 1000000000, GetCurrentFrame().SwapChainSemaphore, nullptr, &swapchainImageIndex);
+    vkAcquireNextImageKHR(this->Device, this->SwaphChain, 1000000000, GetCurrentFrame().SwapChainSemaphore, nullptr, &SwapchainImageIndex);
 
     VkCommandBuffer cmd = GetCurrentFrame().CommandBuffer;
     vkResetCommandBuffer(cmd,0);
+
+
+
+    VkCommandBufferBeginInfo cmdBeginInfo = {};
+    cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBeginInfo.pNext = nullptr;
+    cmdBeginInfo.pInheritanceInfo = nullptr;
+    cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+
     
+    vkBeginCommandBuffer(cmd, &cmdBeginInfo);
+
+    VulkanUtils::transition_image(cmd,this->SwapChainImages[SwapchainImageIndex],VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_GENERAL);
+    VkClearColorValue clearValue;
+    float flash = std::abs(std::sin(this->FrameNumber / 120.f));
+    clearValue = { { 0.0f, 0.0f, flash, 1.0f } };
+
+    VkImageSubresourceRange clearRange = VulkanUtils::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
+
+    //clear image
+    vkCmdClearColorImage(cmd, this->SwapChainImages[SwapchainImageIndex], VK_IMAGE_LAYOUT_GENERAL, &clearValue, 1, &clearRange);
+
+    //make the swapchain image into presentable mode
+    VulkanUtils::transition_image(cmd, this->SwapChainImages[SwapchainImageIndex],VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    vkEndCommandBuffer(cmd);
+
+    //submit queue
+    VkCommandBufferSubmitInfo cmdinfo = VulkanUtils::command_buffer_submit_info(cmd);	
+	
+    VkSemaphoreSubmitInfo waitInfo = VulkanUtils::semaphore_submit_info(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,GetCurrentFrame().SwapChainSemaphore);
+    VkSemaphoreSubmitInfo signalInfo = VulkanUtils::semaphore_submit_info(VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT, GetCurrentFrame().RenderSemaphore);	
+	
+    VkSubmitInfo2 submit = VulkanUtils::submit_info(&cmdinfo,&signalInfo,&waitInfo);	
+
+    //submit command buffer to the queue and execute it.
+    // _renderFence will now block until the graphic commands finish execution
+    vkQueueSubmit2(this->GraphicQueue, 1, &submit, GetCurrentFrame().RenderFence);
 }
 
 void VulkanRHIInterface::EndDraw()
 {
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.pSwapchains = &this->SwaphChain;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pWaitSemaphores = &GetCurrentFrame().RenderSemaphore;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pImageIndices = &SwapchainImageIndex;//?;
+    vkQueuePresentKHR(this->GraphicQueue,&presentInfo);
     
+    FrameNumber++;
 }
 
 void VulkanRHIInterface::InitVulkanInterface()
@@ -57,8 +148,10 @@ void VulkanRHIInterface::InitInstance()
 
     this->Instance = vkbInstance.instance;
     this->DebugMessage = vkbInstance.debug_messenger;
+
+    SDL_Vulkan_CreateSurface(this->SDLWindow->GetWindow(),this->Instance,NULL,&this->Surface);
+    auto test = SDL_GetError();
     
-    SDL_Vulkan_CreateSurface(this->SDLWindow->GetWindow(),this->Instance,nullptr,&this->Surface);
 }
 
 void VulkanRHIInterface::InitDevice()
@@ -77,7 +170,7 @@ void VulkanRHIInterface::InitDevice()
     features12.descriptorIndexing = true;
 
     
-    vkb::PhysicalDeviceSelector selector{vkbInstance};
+    vkb::PhysicalDeviceSelector selector{this->vkbInstance};
     vkb::PhysicalDevice physical_device = selector
     .set_minimum_version(1,3)
     .set_required_features_13(features13)
@@ -109,7 +202,7 @@ void VulkanRHIInterface::InitSwapChain()
     .build().value();
 
     SwapChainExtent = vkbSwapChain.extent;
-    this->SwpahChain = vkbSwapChain.swapchain;
+    this->SwaphChain = vkbSwapChain.swapchain;
     this->SwapChainImages = vkbSwapChain.get_images().value();
     this->SwapChainImageViews = vkbSwapChain.get_image_views().value();
     
@@ -164,7 +257,7 @@ void VulkanRHIInterface::DestoryIntercace()
         vkDestroyCommandPool(this->Device, this->Frames[i].CommandPool, nullptr);
     }
     
-    vkDestroySwapchainKHR(Device,this->SwpahChain,nullptr);
+    vkDestroySwapchainKHR(Device,this->SwaphChain,nullptr);
 
 
     

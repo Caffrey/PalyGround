@@ -3,16 +3,13 @@
 #include "Engine/Modules/Windows/XWindows.h"
 #include "Engine/Engine.h"
 
-class XEditor
+class XEditor : public XEngine
 {
 public:
-    XEditor();
+    XEditor(XSDLWindows* Window);
     ~XEditor();
-    void InitlizedEditor();
 
-    void Tick();
-    XWindows *Window;
-    XEngine * Engine;
+    void InitEditor();
+    
 };
 
-static XEditor* GEditor = nullptr;
