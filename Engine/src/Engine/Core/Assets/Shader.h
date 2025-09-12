@@ -2,8 +2,13 @@
 
 
 #include "Core/Object.h"
-class Shader : public Object
+#include "Modules/RHI/RHIShader.h"
+
+class XShader : public Object
 {
     public:
+
+    RHIShader* VertexShader;
+    RHIShader* PixelShader;
     
 };

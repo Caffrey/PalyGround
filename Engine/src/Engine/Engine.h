@@ -6,17 +6,15 @@ class XSDLWindows;
 class XEngine
 {
 public:
-    XEngine(XSDLWindows* Window);
+    XEngine();
     ~XEngine();
 
     virtual void InitEngine();
-    virtual void Tick();
+    virtual void Tick(RHIInterface *RHIInterface);
     
 private:
     XRenderer *Renderer;
     World* SimulationWorld;
-    RHIInterface* RHIInterface;
-    
 };
 
 

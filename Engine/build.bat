@@ -1,10 +1,10 @@
 @REM cd src/ThirdPart/vcpkg
 @REM ./bootstrap-vcpkg.bat
 @REM cd ../../../
-"./tool/vcpkg/scripts/buildsystems/vcpkg integrate install
+@REM "./tool/vcpkg/scripts/buildsystems/vcpkg integrate install
 
-rd build /s/q
-mkdir build 
+@REM rd build /s/q
+@REM mkdir build 
 cd build
 
 

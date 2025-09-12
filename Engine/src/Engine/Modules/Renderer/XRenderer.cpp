@@ -1,15 +1,14 @@
 #include "XRenderer.h"
-#include "Modules/Windows/XSDLWindows.h"
 #include <SDL3/SDL_vulkan.h>
 
 void XRenderer::Render(Camera* camera, World* Scene, RHIInterface* RHIInterface)
 {
+    RHIInterface->BeginRenderFrame();
     Culling();
     RenderGbuffer();
     RenderGbuffer();
     RenderPostProcessing();
-    RHIInterface->BeginDraw();
-    RHIInterface->EndDraw();
+    RHIInterface->EndRenderFrame();
 }
 
 void XRenderer::Culling()

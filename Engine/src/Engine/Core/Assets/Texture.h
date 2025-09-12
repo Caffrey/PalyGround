@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Core/Object.h"
-class Texture : public Object
+#include "Modules/RHI/RHITexture.h"
+
+class XTexture : public Object
 {
 public:
-    
+
+    RHITexture* Texture;
 };

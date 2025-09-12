@@ -1,18 +1,8 @@
-#pragma once
-
+﻿#pragma once
 #include "VkBootstrap.h"
-class XSDLWindows;
-class RHIInterface
-{
-public:
-    virtual void Init(XSDLWindows* Window);
+#include "XSDLWindows.h"
+#include "Modules/RHI/RHIInterface.h"
 
-
-    XSDLWindows* SDLWindow;
-
-    virtual void BeginDraw(){};
-    virtual void EndDraw(){};
-};
 
 struct VKFrameData
 {
@@ -70,15 +60,14 @@ public:
 
         return info;
     }
-    
 };
 
 class VulkanRHIInterface : public RHIInterface
 {
 public:
-    void Init(XSDLWindows* Window) override;
-    void BeginDraw() override;
-    void EndDraw() override;
+    void Init(XWindows* Window) override;
+    void BeginRenderFrame() override;
+    void EndRenderFrame() override;
         
     
 private:
@@ -119,5 +108,24 @@ private:
     uint32_t GraphicQueueFamily;
     uint32_t SwapchainImageIndex;
 
-    
+    XSDLWindows * SDLWindow;
+
+//Interface
+    public:
+    //Buffer
+    virtual RHIBuffer* CreateVertexBuffer() {return nullptr;};
+    virtual RHITexture* CreateTexture() {return nullptr;};
+    virtual RHITexture* CreateRenderTarget() {return nullptr;};
+
+    //Shader
+    virtual RHIShader* CreateVertexShader() {return nullptr;};
+    virtual RHIShader* CreatePixelShader() {return nullptr;};
+    virtual RHIShader* CreateComputeShader() {return nullptr;};
+
+    //Command
+    virtual RHICommandBuffer* GetCommandBuffer() {return nullptr;};
+    virtual void ExecuteCommandBuffer(RHICommandBuffer*){};
+    virtual void SubmitCommands(){};
+
+
 };

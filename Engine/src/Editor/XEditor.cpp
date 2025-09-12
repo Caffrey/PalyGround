@@ -1,20 +1,19 @@
 #include "Editor/XEditor.h"
-#include "Engine/Modules/Windows/XSDLWindows.h"
-
 
 XEditor* GEditor = nullptr;
 
-XEditor::XEditor(XSDLWindows* Window):XEngine(Window)
-{
-}
 
-XEditor::~XEditor()
-{
-}
-
-void XEditor::InitEditor()
+void XEditor::InitEditor(XWindows* Window)
 {
     InitEngine();
     GEditor = this;
 }
 
+XEditor::XEditor()
+{
+    
+}
+
+XEditor::~XEditor()
+{
+}

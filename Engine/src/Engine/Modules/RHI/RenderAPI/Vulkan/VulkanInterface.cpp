@@ -1,15 +1,7 @@
-#include "RHIInterface.h"
-
+﻿#include "Modules/RHI/RenderAPI/Vulkan/VulkanInterface.h"
 #include <valarray>
 #include <SDL3/SDL_vulkan.h>
-#include "Modules/Windows/XSDLWindows.h"
-
-
-
-void RHIInterface::Init(XSDLWindows* Window)
-{
-    this->SDLWindow = Window;
-}
+#include "Modules/RHI/RenderAPI/Vulkan/XSDLWindows.h"
 
 void VulkanUtils::transition_image(VkCommandBuffer cmd, VkImage image, VkImageLayout currentLayout,
     VkImageLayout newLayout)
@@ -51,17 +43,15 @@ VkImageSubresourceRange VulkanUtils::image_subresource_range(VkImageAspectFlags 
     return subImage;
 }
 
-void VulkanRHIInterface::Init(XSDLWindows* Window)
+void VulkanRHIInterface::Init(XWindows* Window)
 {
     RHIInterface::Init(Window);
-
+    this->SDLWindow = static_cast<XSDLWindows*>(Window);
     InitVulkanInterface();
-
-    
 }
 
 //fence wait last frame
-void VulkanRHIInterface::BeginDraw()
+void VulkanRHIInterface::BeginRenderFrame()
 {
     //singal wait
     vkWaitForFences(this->Device,1,&GetCurrentFrame().RenderFence,true,1000000);
@@ -111,7 +101,7 @@ void VulkanRHIInterface::BeginDraw()
     vkQueueSubmit2(this->GraphicQueue, 1, &submit, GetCurrentFrame().RenderFence);
 }
 
-void VulkanRHIInterface::EndDraw()
+void VulkanRHIInterface::EndRenderFrame()
 {
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -128,7 +118,6 @@ void VulkanRHIInterface::EndDraw()
 
 void VulkanRHIInterface::InitVulkanInterface()
 {
-
     InitInstance();
     InitDevice();
     InitSwapChain();

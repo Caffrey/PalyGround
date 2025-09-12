@@ -1,19 +1,18 @@
 #pragma once
 
 #include "XEditor.h"
-#include "Engine/Modules/Windows/XSDLWindows.h"
+#include "Modules/RHI/RenderAPI/Vulkan/XSDLWindows.h"
 int main(int argc, char *argv[])
 {
-    XSDLWindows* windows = new  XSDLWindows();
+    XEditor* Editor = new XEditor();
+    XSDLWindows* windows = new  XSDLWindows(Editor);
     windows->InitWindows();
-
-    XEditor* Editor = new XEditor(windows);
-    Editor->InitEditor();
     
     while (true)
     {
         windows->Tick();
-        Editor->Tick();
+        if(windows->IsQuit())
+            break;
     }
     return 0;
 }

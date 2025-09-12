@@ -1,11 +1,7 @@
 #include "Engine.h"
-#include "Modules/Windows/XSDLWindows.h"
 
-XEngine::XEngine(XSDLWindows* Window)
+XEngine::XEngine()
 {
-    RHIInterface = new VulkanRHIInterface();
-    RHIInterface->Init(Window);
-    
 }
 static XEngine* GEngine = nullptr;
 
@@ -20,10 +16,10 @@ void XEngine::InitEngine()
     GEngine = this;
 }
 
-void XEngine::Tick()
+void XEngine::Tick(RHIInterface *RHIInterface)
 {
     SimulationWorld->Tick();
     SimulationWorld->PhysicalTick();
     SimulationWorld->RenderWorld();
-    Renderer->Render(nullptr,SimulationWorld,this->RHIInterface);
+    Renderer->Render(nullptr,SimulationWorld,RHIInterface);
 }
