@@ -3,5 +3,5 @@
 class VulkanBuffer
 {
 public:
-    
+    void tes();
 };

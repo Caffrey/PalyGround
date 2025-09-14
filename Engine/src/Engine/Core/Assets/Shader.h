@@ -6,7 +6,7 @@
 
 class XShader : public Object
 {
-    public:
+public:
 
     RHIShader* VertexShader;
     RHIShader* PixelShader;
