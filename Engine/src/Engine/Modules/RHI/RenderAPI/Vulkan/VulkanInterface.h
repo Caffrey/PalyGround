@@ -2,7 +2,7 @@
 #include "VkBootstrap.h"
 #include "XSDLWindows.h"
 #include "Modules/RHI/RHIInterface.h"
-
+#include "vma/vk_mem_alloc.h"
 
 struct VKFrameData
 {
@@ -73,6 +73,7 @@ public:
 private:
     void InitVulkanInterface();
 
+    void InitMmeoryAllocator();
     //Init Instance
     //Init Surface
     void InitInstance();
@@ -109,7 +110,7 @@ private:
     uint32_t SwapchainImageIndex;
 
     XSDLWindows * SDLWindow;
-
+    VmaAllocator VmaAllocator;
 //Interface
     public:
     //Buffer

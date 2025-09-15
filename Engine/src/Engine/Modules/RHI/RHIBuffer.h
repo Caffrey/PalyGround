@@ -6,6 +6,7 @@
 class RHIBuffer : public RHIObject
 {
 public:
+
     
     virtual void Destory(){};
     

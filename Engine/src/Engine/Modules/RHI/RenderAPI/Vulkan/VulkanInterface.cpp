@@ -120,8 +120,19 @@ void VulkanRHIInterface::InitVulkanInterface()
 {
     InitInstance();
     InitDevice();
+    InitMmeoryAllocator();
     InitSwapChain();
     InitCommand();
+}
+
+void VulkanRHIInterface::InitMmeoryAllocator()
+{
+    VmaAllocatorCreateInfo Info{};
+    Info.vulkanApiVersion = VK_API_VERSION_1_3;
+    Info.physicalDevice = this->PhysicalDevice;
+    Info.device = this->Device;
+    Info.instance = this->Instance;
+    vmaCreateAllocator(&Info,&VmaAllocator);
 }
 
 void VulkanRHIInterface::InitInstance()
@@ -255,9 +266,13 @@ void VulkanRHIInterface::DestoryIntercace()
         vkDestroyImageView(Device,this->SwapChainImageViews[i],nullptr);
     }
 
+    vmaDestroyAllocator(this->VmaAllocator);
+    
     vkDestroySurfaceKHR(this->Instance,this->Surface,nullptr);
     vkDestroyDevice(this->Device,nullptr);
 
     vkb::destroy_debug_utils_messenger(this->Instance,this->DebugMessage);
     vkDestroyInstance(this->Instance,nullptr);
+
+    
 }

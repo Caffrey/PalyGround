@@ -8,3 +8,12 @@ https://github.com/KhronosGroup/Vulkan-Samples/tree/main
 	Texture
 	FrameBuffer
 	
+课题
+	1.Vulkan内存管理. 
+	2.Vulkan资源申请与创建
+	3.封装Vulakn 到RHI
+		shader doing
+		texture 1
+		vertex buffer 1
+
+	4.应用层链接到封装层

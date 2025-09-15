@@ -4,7 +4,7 @@
 @REM "./tool/vcpkg/scripts/buildsystems/vcpkg integrate install
 
 @REM rd build /s/q
-@REM mkdir build 
+mkdir build 
 cd build
 
 
