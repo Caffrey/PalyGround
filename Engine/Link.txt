@@ -20,4 +20,4 @@ https://github.com/KhronosGroup/Vulkan-Samples/tree/main
 
 测试vertexBufferBinding和VertexInput的关系
 	完成三角形到DesceiptBinder的流程
-	
+再搞一下Shader的翻译编译
