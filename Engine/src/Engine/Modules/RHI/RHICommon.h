@@ -4,5 +4,6 @@ class RHIObject
 {
 public:
 
-    virtual void Destory();
+    virtual void Destory(){};
 };
+

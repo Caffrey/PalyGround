@@ -6,14 +6,14 @@
 #include "Modules/RHI/RHIInterface.h"
 #include "vma/vk_mem_alloc.h"
 
-class VulaknContext : public RHIContext
+class VulkanContext : public RHIContext
 {
 public:
-    vkb::Instance vkbInstance;
     VkInstance Instance;
     VkDebugUtilsMessengerEXT DebugMessage;
     VkPhysicalDevice PhysicalDevice;
     VkDevice Device;
     VkSurfaceKHR Surface;
+    VmaAllocator Allocator;
     
 };

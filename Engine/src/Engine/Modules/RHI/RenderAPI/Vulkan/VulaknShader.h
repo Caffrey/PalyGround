@@ -35,27 +35,53 @@ public:
     int ZFailFront;
 };
 
-class VulkanShaderModule 
-{
 
+class VulkanShader : public RHIObject
+{
+public:
+    void InitShader(VulkanContext*Context, const std::vector<char>& Code);
+    VkPipelineShaderStageCreateInfo shaderStageInfo;
     
-    VkShaderModule shaderModule;  
+protected:
+    virtual void SetupShaderStage() = 0;
+    
+    VkShaderModule shaderModule;
+};
+
+class VulkanVertexShader : public VulkanShader
+{
+protected:
+    void SetupShaderStage() override;
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+};
+
+class VulkanPixelShader : public VulkanShader
+{
+protected:
+    void SetupShaderStage() override;
+
+    VkPipelineRasterizationStateCreateInfo rasterStateInfo;
+    VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo;
+    VkPipelineColorBlendStateCreateInfo colorBlendStateInfo;
 };
 
 class VulkanComputeShader : public RHIShader
 {
     VkShaderModule shaderModule;
-    
 };
 
 class VulkanMaterialShader : public RHIShader
 {
 public:
 
-    static void CreateShader(VulaknContext*Context, const std::vector<char>& code);
-    void UseShader();
+    void InitMaterialShader(VulkanContext*Context, const std::vector<char>& VertexCode, const std::vector<char>& PixelCode);
+protected:
+    void CreateShaderPipeline();
 
-    VkShaderModule shaderModule;
+    VulkanVertexShader* VertexShader;
+    VulkanPixelShader* PixelShader;
+    
     VulaknShaderBlendMode BlendMode;
     VulkanShaderStencilMode Mode;
 
@@ -68,6 +94,7 @@ public:
 
     //Shader Module -> Shader Code
     //Shader Stage -> Application Of Module -> Vertex Module -> Vertex Stage
+    //Shader Module -> Connect Shader Stage
     //Pipeline - > Shdaer Stage Composition
     //Descriptor -> Resources That Pipeline Use; 
 };

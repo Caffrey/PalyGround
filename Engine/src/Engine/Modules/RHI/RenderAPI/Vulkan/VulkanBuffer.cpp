@@ -1,6 +1,6 @@
 ﻿#include "VulkanBuffer.h"
 #include "vulkan/vulkan.h"
-#include <vma/vk_mem_alloc.h>
+#include "vma/vk_mem_alloc.h"
 
 
 
@@ -19,6 +19,6 @@ VulkanBuffer* VulkanBuffer::CreateBuffer(VmaAllocator Allactor, size_t allocSize
     VmaAllocationCreateInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
     VulkanBuffer* buffer = new VulkanBuffer();;
-    vmaCreateBuffer(Allactor,&BufferCreateInfo,&VmaAllocationCreateInfo,&buffer.Buffer,&buffer.Allocation,nullptr);
+    // vmaCreateBuffer(Allactor,&BufferCreateInfo,&VmaAllocationCreateInfo,&buffer.Buffer,&buffer.Allocation,nullptr);
     return buffer;
 }

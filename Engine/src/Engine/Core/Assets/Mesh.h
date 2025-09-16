@@ -13,6 +13,7 @@ struct XSubMesh
 
 class XMesh : public Object
 {
+    void UploadMesh();
     
 protected:
     std::vector<Vector3> Vertices;
@@ -21,7 +22,6 @@ protected:
     std::vector<Vector3> Normal;
     std::vector<Vector4> Tangent;
     std::vector<Vector4> Color;
-
     std::vector<Vector4> Uv;
     std::vector<Vector4> Uv1;
     std::vector<Vector4> Uv2;
@@ -31,8 +31,14 @@ protected:
     std::vector<Vector4> Uv6;
     std::vector<Vector4> Uv7;
     std::vector<Vector4> Uv8;
-
+    
     std::vector<XSubMesh> SubMesh;
+
+    std::vector<Vector4> VertexBufferMemory;
+    std::vector<int> IndicesBufferMemory;
+
+    RHIBufferDesc RHIBufferDesc;
+    
 public:
     RHIVertexBuffer* VertexBuffer;
 };

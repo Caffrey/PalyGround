@@ -15,6 +15,7 @@ public:
 
     virtual void BeginRenderFrame() = 0;
     virtual void EndRenderFrame() = 0;
+    virtual void TestDrawLoop(){};
 
     
 public:
@@ -32,5 +33,7 @@ public:
     virtual RHICommandBuffer* GetCommandBuffer() = 0;
     virtual void ExecuteCommandBuffer(RHICommandBuffer*) = 0;
     virtual void SubmitCommands() = 0;
+
+    
 
 };

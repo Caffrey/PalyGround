@@ -17,3 +17,7 @@ https://github.com/KhronosGroup/Vulkan-Samples/tree/main
 		vertex buffer 1
 
 	4.应用层链接到封装层
+
+测试vertexBufferBinding和VertexInput的关系
+	完成三角形到DesceiptBinder的流程
+	

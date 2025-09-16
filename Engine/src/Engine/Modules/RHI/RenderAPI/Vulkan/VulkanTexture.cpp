@@ -23,4 +23,5 @@ VulkanTexture* VulkanTexture::CreateImage(VmaAllocator Allactor, size_t allocSiz
     VulkanTexture* TextureBuffer = new VulkanTexture();
     
     vmaCreateImage(Allactor, &ImageInfo, &VmaAllocationCreateInfo, &TextureBuffer->Image,&TextureBuffer->Allocation,nullptr);
+    return TextureBuffer;
 }
