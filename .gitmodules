@@ -16,3 +16,6 @@
 [submodule "Engine/tool/vcpkg"]
 	path = Engine/tool/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
+[submodule "Engine/tool/glslc"]
+	path = Engine/tool/glslc
+	url = https://github.com/pixeljetstream/glslc.git
