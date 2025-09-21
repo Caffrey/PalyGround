@@ -6,6 +6,14 @@
 class TestDrawVulkan
 {
 public:
+    struct VertexStruct
+    {
+    public:
+        Vector3 pos;
+        Vector3 color;
+        Vector3 normal;
+    };
+    
     void Draw(VkCommandBuffer& Buffer);
 
 
@@ -15,12 +23,10 @@ public:
     void InitPipeline(VulkanContext& Context);
     void InitInputDesc();
     void InitShader(VulkanContext& Context);
-
+    void createRenderPass(VulkanContext& Context);
     void load_shader_module(VulkanContext& Context, const char*FilePath, VkShaderModule* OutModule);
     
-    std::vector<Vector3> Vertex;
-    std::vector<Vector3> Colors;
-    std::vector<Vector3> Buffers;
+    std::vector<VertexStruct> Vertex;
     VmaAllocation VertexAllocation;
 
     VkPipelineLayout PipelineLayout;
@@ -31,9 +37,9 @@ public:
 
 
     VkVertexInputAttributeDescription CreateAttributeDesc(int offset, int location);
-    VkBuffer vertexBuffer;;
-
-
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+VkRenderPass renderPass;
     VkShaderModule VertexShader;
     VkShaderModule PixelShader;
 };

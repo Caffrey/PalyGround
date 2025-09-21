@@ -22,8 +22,8 @@ void XSDLWindows::InitWindows()
         // return SDL_APP_FAILURE;
     }
 
-    Width = 640;
-    Height = 480;
+    Width = 1920;
+    Height = 1080;
 
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
     Windows = SDL_CreateWindow("SDLWindow", Width, Height, window_flags);

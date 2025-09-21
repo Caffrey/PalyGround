@@ -36,6 +36,20 @@ void VulkanRHIInterface::BeginRenderFrame()
     
     vkBeginCommandBuffer(cmd, &cmdBeginInfo);
 
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(1920);
+    viewport.height = static_cast<float>(1080);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent ={1920, 1080};
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+
     VulkanUtils::transition_image(cmd,this->SwapChainImages[SwapchainImageIndex],VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_GENERAL);
     VkClearColorValue clearValue;
     float flash = std::abs(std::sin(this->FrameNumber / 120.f));
@@ -103,7 +117,6 @@ void VulkanRHIInterface::InitVulkanInterface()
     RHIContext.PhysicalDevice = this->PhysicalDevice;
     RHIContext.Surface = this->Surface;
     RHIContext.DebugMessage = this->DebugMessage;
-    
     DrawVulkan.Init(RHIContext);
 }
 
@@ -121,7 +134,7 @@ void VulkanRHIInterface::InitInstance()
 {
     vkb::InstanceBuilder vkBuilder;
     auto inst_ret = vkBuilder.set_app_name("Vulkan Application")
-   .request_validation_layers(false)
+   .request_validation_layers(true)
    .use_default_debug_messenger()
    .require_api_version(1,3,0)
    .build();

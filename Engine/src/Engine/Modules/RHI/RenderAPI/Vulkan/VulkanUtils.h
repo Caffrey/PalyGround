@@ -49,7 +49,8 @@ public:
         return info;
     }
 
-    VkPipelineVertexInputStateCreateInfo  CreateVertexInputState();
-    VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyState(VkPrimitiveTopology  topology);
+    static VkPipelineShaderStageCreateInfo pipeline_shader_stage_create_info(VkShaderStageFlagBits stage, VkShaderModule shaderModule) ;
+    static VkPipelineVertexInputStateCreateInfo  CreateVertexInputState();
+    static VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyState(VkPrimitiveTopology  topology);
     
 };

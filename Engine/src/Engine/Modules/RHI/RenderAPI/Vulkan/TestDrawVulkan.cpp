@@ -1,79 +1,101 @@
 ﻿#include "TestDrawVulkan.h"
 #include <fstream>
+#include <iostream>
+
+#include "VulkanUtils.h"
+
 void TestDrawVulkan::Draw(VkCommandBuffer& cmd)
 {
+    
     vkCmdBindPipeline(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,this->GraphicPipeline);
-    VkDeviceSize offset = 0;
-    vkCmdBindVertexBuffers(cmd, 0, 1, &vertexBuffer, &offset);
-    vkCmdDraw(cmd,3,1,0,0);
-}
+
+    
+    VkBuffer vertexBuffers[] = {vertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
+    vkCmdDraw(cmd, static_cast<uint32_t>(Vertex.size()), 1, 0, 0);
+
+}   
 
 void TestDrawVulkan::Init(VulkanContext& Context)
 {
     InitMesh(Context);
     InitInputDesc();
-    InitShader(Context);
+    
     InitPipeline(Context);
-   
+
+    
+}
+uint32_t findMemoryType(VulkanContext& Context, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(Context.PhysicalDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
 }
 
 void TestDrawVulkan::InitMesh(VulkanContext& Context)
 {
     //vertex positions
-    Vertex.push_back( { 1.f, 1.f, 0.0f });
-    Vertex.push_back( {-1.f, 1.f, 0.0f });
-    Vertex.push_back( { 0.f,-1.f, 0.0f });
+    Vertex.push_back( VertexStruct());
+    Vertex.push_back( VertexStruct());
+    Vertex.push_back( VertexStruct());
 
-    //vertex colors, all green
-    Colors.push_back( { 0.f, 1.f, 0.0f });
-    Colors.push_back( { 0.f, 1.f, 0.0f });
-    Colors.push_back( { 0.f, 1.f, 0.0f });
+    Vertex[0].pos = {0.5,-0.5, 0};
+    Vertex[1].pos = {0.5,0.5, 0};
+    Vertex[2].pos = {-0.5,-0.5, 0};
 
- 
+    Vertex[0].color = {0,0, 0};
+    Vertex[1].color = { 0.5,0.5,0.5 };
+    Vertex[2].color = { 1,0, 0};
     
     //Create Buffer
-    int BufferSize = Vertex.size();
-    for (int i = 0 ; i< BufferSize;i++)
-    {
-        Buffers.push_back(Vertex[i]);
-        Buffers.push_back(Colors[i]);
-    }
-    int VertexSize = sizeof(Vector3)*2;
+   //--
+    int VertexSize = sizeof(VertexStruct);
     
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     //this is the total size, in bytes, of the buffer we are allocating
-    bufferInfo.size = BufferSize * VertexSize;
+    bufferInfo.size = Vertex.size() * VertexSize;
     //this buffer is going to be used as a Vertex Buffer
     bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-
-
+    
+    
     //let the VMA library know that this data should be writeable by CPU, but also readable by GPU
     VmaAllocationCreateInfo vmaallocInfo = {};
-    vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-
+    vmaallocInfo.usage =  VMA_MEMORY_USAGE_CPU_TO_GPU;
+    
     //allocate the buffer
     vmaCreateBuffer(Context.Allocator, &bufferInfo, &vmaallocInfo,
         &vertexBuffer,
         &VertexAllocation,
         nullptr);
-
+    
     void* Data;
     vmaMapMemory(Context.Allocator,VertexAllocation,&Data);
-    memcpy(Data,Buffers.data(),BufferSize*VertexSize);
+    memcpy(Data,Vertex.data(),Vertex.size() * VertexSize);
     vmaUnmapMemory(Context.Allocator,VertexAllocation);
+    //---
+
 }
 
 void TestDrawVulkan::InitPipeline(VulkanContext& Context)
 {
+    InitShader(Context);
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
 
 VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = InputBindings.size();
-    vertexInputInfo.vertexAttributeDescriptionCount = InputAttributes.size();
     vertexInputInfo.pVertexBindingDescriptions = InputBindings.data();
+    
     vertexInputInfo.pVertexAttributeDescriptions = InputAttributes.data();
+    vertexInputInfo.vertexAttributeDescriptionCount = InputAttributes.size();
 
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
@@ -128,7 +150,15 @@ VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 
 
     pipelineInfo.stageCount = 2;
-    //pipelineInfo.pStages
+
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+    shaderStages.push_back(
+    VulkanUtils::pipeline_shader_stage_create_info(VK_SHADER_STAGE_VERTEX_BIT, VertexShader));
+
+    shaderStages.push_back(
+        VulkanUtils::pipeline_shader_stage_create_info(VK_SHADER_STAGE_FRAGMENT_BIT, PixelShader));
+    
+    pipelineInfo.pStages = shaderStages.data();
     
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
@@ -137,15 +167,18 @@ VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = PipelineLayout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = 0;
 
     
-    vkCreateGraphicsPipelines(Context.Device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,&GraphicPipeline);
+   auto r = vkCreateGraphicsPipelines(Context.Device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,&GraphicPipeline);
+    std::cout << r;
 }
 
 
 void TestDrawVulkan::InitInputDesc()
 {
-    int VertexSize = sizeof(Vector3)*3;
+    int VertexSize = sizeof(VertexStruct);
     
     //vetex bind
     VkVertexInputBindingDescription bindingDescription = {};
@@ -154,9 +187,9 @@ void TestDrawVulkan::InitInputDesc()
     bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     InputBindings.push_back(bindingDescription);    
 
-    VkVertexInputAttributeDescription positionDescription = CreateAttributeDesc(0,0);
-    VkVertexInputAttributeDescription NormalAttributeDesc = CreateAttributeDesc(sizeof(Vector3),1);
-    VkVertexInputAttributeDescription ColorAttributeDesc = CreateAttributeDesc(sizeof(Vector3),2);
+    VkVertexInputAttributeDescription positionDescription = CreateAttributeDesc(offsetof(VertexStruct,pos),0);
+    VkVertexInputAttributeDescription NormalAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,color),1);
+    VkVertexInputAttributeDescription ColorAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,normal),2);
     InputAttributes.push_back(positionDescription);
     InputAttributes.push_back(NormalAttributeDesc);
     InputAttributes.push_back(ColorAttributeDesc);
@@ -165,27 +198,56 @@ void TestDrawVulkan::InitInputDesc()
 
 void TestDrawVulkan::InitShader(VulkanContext& Context)
 {
-    load_shader_module(Context, "./Vertex.spv",&VertexShader);
-    load_shader_module(Context, "./Pixel.spv",&PixelShader);
+    load_shader_module(Context, "D:/Engine/PalyGround/Engine/src/Engine/Shader/Vertex.vert",&VertexShader);
+    load_shader_module(Context, "D:/Engine/PalyGround/Engine/src/Engine/Shader/Pixel.frag",&PixelShader);
     
+}
+
+void TestDrawVulkan::createRenderPass(VulkanContext& Context)
+{
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(Context.Device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create render pass!");
+    }
 }
 
 void TestDrawVulkan::load_shader_module(VulkanContext& Context, const char* FilePath, VkShaderModule* OutModule)
 {
-    std::ifstream file(FilePath,std::ios::ate | std::ios::binary);
 
-    size_t fileSize = (size_t)file.tellg();
+    std::ifstream file(FilePath, std::ios::ate | std::ios::binary);
 
-    //spirv expects the buffer to be on uint32, so make sure to reserve an int vector big enough for the entire file
-    std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
-
-    //put file cursor at beginning
+    if (!file.is_open()) {
+        throw std::runtime_error("failed to open file!");
+    }
+    size_t fileSize = (size_t) file.tellg();
+    std::vector<char> buffer(fileSize);
     file.seekg(0);
-
-    //load the entire file into the buffer
-    file.read((char*)buffer.data(), fileSize);
-
-    //now that the file is loaded into the buffer, we can close it
+    file.read(buffer.data(), fileSize);
     file.close();
 
     VkShaderModuleCreateInfo createInfo = {};
@@ -193,13 +255,12 @@ void TestDrawVulkan::load_shader_module(VulkanContext& Context, const char* File
     createInfo.pNext = nullptr;
 
     //codeSize has to be in bytes, so multiply the ints in the buffer by size of int to know the real size of the buffer
-    createInfo.codeSize = buffer.size() * sizeof(uint32_t);
-    createInfo.pCode = buffer.data();
+    createInfo.codeSize = buffer.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(buffer.data());
 
     //check that the creation goes well.
-    VkShaderModule shaderModule;
-    vkCreateShaderModule(Context.Device, &createInfo, nullptr, &shaderModule);
-    *OutModule = shaderModule;
+    auto r= vkCreateShaderModule(Context.Device, &createInfo, nullptr, OutModule );
+    std::cout << r;
 }
 
 VkVertexInputAttributeDescription TestDrawVulkan::CreateAttributeDesc(int offset, int location)
