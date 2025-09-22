@@ -4,13 +4,19 @@
 
 #include "VulkanUtils.h"
 
+TestDrawVulkan::TestDrawVulkan()
+{
+    m_VertexFormat = VertexFormat();
+}
+
+
 void TestDrawVulkan::Draw(VkCommandBuffer& cmd)
 {
     
     vkCmdBindPipeline(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,this->GraphicPipeline);
 
     
-    VkBuffer vertexBuffers[] = {vertexBuffer};
+    VkBuffer vertexBuffers[] = {NewVertexBuffer->Buffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
     vkCmdDraw(cmd, static_cast<uint32_t>(Vertex.size()), 1, 0, 0);
@@ -42,9 +48,9 @@ uint32_t findMemoryType(VulkanContext& Context, uint32_t typeFilter, VkMemoryPro
 void TestDrawVulkan::InitMesh(VulkanContext& Context)
 {
     //vertex positions
-    Vertex.push_back( VertexStruct());
-    Vertex.push_back( VertexStruct());
-    Vertex.push_back( VertexStruct());
+    Vertex.push_back( TestVertexStruct());
+    Vertex.push_back( TestVertexStruct());
+    Vertex.push_back( TestVertexStruct());
 
     Vertex[0].pos = {0.5,-0.5, 0};
     Vertex[1].pos = {0.5,0.5, 0};
@@ -53,34 +59,57 @@ void TestDrawVulkan::InitMesh(VulkanContext& Context)
     Vertex[0].color = {0,0, 0};
     Vertex[1].color = { 0.5,0.5,0.5 };
     Vertex[2].color = { 1,0, 0};
+
+    std::vector<int> Offsets;
+    Offsets.push_back(offsetof(TestVertexStruct,pos));
+    Offsets.push_back(offsetof(TestVertexStruct,normal));
+    Offsets.push_back(offsetof(TestVertexStruct,color));
+
+    std::vector<float> VertexFloatData;
+    for(auto vertex : Vertex)
+    {
+        VertexFloatData.push_back(vertex.pos[0]);
+        VertexFloatData.push_back(vertex.pos[1]);
+        VertexFloatData.push_back(vertex.pos[2]);
+        VertexFloatData.push_back(vertex.normal[0]);
+        VertexFloatData.push_back(vertex.normal[1]);
+        VertexFloatData.push_back(vertex.normal[2]);
+        VertexFloatData.push_back(vertex.color[0]);
+        VertexFloatData.push_back(vertex.color[1]);
+        VertexFloatData.push_back(vertex.color[2]);
+    }
+        
+    m_VertexFormat = VertexFormat(sizeof(TestVertexStruct),Vertex.size(),VertexFloatData,Offsets);
+    NewVertexBuffer = VulkanVertexBuffer::CreateVertexBuffer(Context.Allocator,m_VertexFormat.VertexSide,m_VertexFormat.VertexOffset.data(),m_VertexFormat.VertexOffset.size()
+        ,m_VertexFormat.VertexData.data(),m_VertexFormat.VertexCount);
     
     //Create Buffer
    //--
-    int VertexSize = sizeof(VertexStruct);
-    
-    VkBufferCreateInfo bufferInfo = {};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    //this is the total size, in bytes, of the buffer we are allocating
-    bufferInfo.size = Vertex.size() * VertexSize;
-    //this buffer is going to be used as a Vertex Buffer
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    
-    
-    //let the VMA library know that this data should be writeable by CPU, but also readable by GPU
-    VmaAllocationCreateInfo vmaallocInfo = {};
-    vmaallocInfo.usage =  VMA_MEMORY_USAGE_CPU_TO_GPU;
-    
-    //allocate the buffer
-    vmaCreateBuffer(Context.Allocator, &bufferInfo, &vmaallocInfo,
-        &vertexBuffer,
-        &VertexAllocation,
-        nullptr);
-    
-    void* Data;
-    vmaMapMemory(Context.Allocator,VertexAllocation,&Data);
-    memcpy(Data,Vertex.data(),Vertex.size() * VertexSize);
-    vmaUnmapMemory(Context.Allocator,VertexAllocation);
-    //---
+    // int VertexSize = sizeof(TestVertexStruct);
+    //
+    // VkBufferCreateInfo bufferInfo = {};
+    // bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    // //this is the total size, in bytes, of the buffer we are allocating
+    // bufferInfo.size = Vertex.size() * VertexSize;
+    // //this buffer is going to be used as a Vertex Buffer
+    // bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    //
+    //
+    // //let the VMA library know that this data should be writeable by CPU, but also readable by GPU
+    // VmaAllocationCreateInfo vmaallocInfo = {};
+    // vmaallocInfo.usage =  VMA_MEMORY_USAGE_CPU_TO_GPU;
+    //
+    // //allocate the buffer
+    // vmaCreateBuffer(Context.Allocator, &bufferInfo, &vmaallocInfo,
+    //     &vertexBuffer,
+    //     &VertexAllocation,
+    //     nullptr);
+    //
+    // void* Data;
+    // vmaMapMemory(Context.Allocator,VertexAllocation,&Data);
+    // memcpy(Data,Vertex.data(),Vertex.size() * VertexSize);
+    // vmaUnmapMemory(Context.Allocator,VertexAllocation);
+    // //---
 
 }
 
@@ -178,21 +207,27 @@ VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 
 void TestDrawVulkan::InitInputDesc()
 {
-    int VertexSize = sizeof(VertexStruct);
+    // int VertexSize = sizeof(VertexStruct);
+    //
+    // //vetex bind
+  
+    // VkVertexInputBindingDescription bindingDescription = {};
+    // bindingDescription.binding = 0;
+    // bindingDescription.stride =   m_VertexFormat.VertexSide;;
+    // bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    InputBindings.push_back(m_VertexFormat.BindingDesc);    
     
-    //vetex bind
-    VkVertexInputBindingDescription bindingDescription = {};
-    bindingDescription.binding = 0;
-    bindingDescription.stride = VertexSize;
-    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-    InputBindings.push_back(bindingDescription);    
+    // VkVertexInputAttributeDescription positionDescription = CreateAttributeDesc(offsetof(VertexStruct,pos),0);
+    // VkVertexInputAttributeDescription NormalAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,color),1);
+    // VkVertexInputAttributeDescription ColorAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,normal),2);
+    // InputAttributes.push_back(positionDescription);
+    // InputAttributes.push_back(NormalAttributeDesc);
+    // InputAttributes.push_back(ColorAttributeDesc);
 
-    VkVertexInputAttributeDescription positionDescription = CreateAttributeDesc(offsetof(VertexStruct,pos),0);
-    VkVertexInputAttributeDescription NormalAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,color),1);
-    VkVertexInputAttributeDescription ColorAttributeDesc = CreateAttributeDesc(offsetof(VertexStruct,normal),2);
-    InputAttributes.push_back(positionDescription);
-    InputAttributes.push_back(NormalAttributeDesc);
-    InputAttributes.push_back(ColorAttributeDesc);
+    for(auto desc : m_VertexFormat.AttributeDesc)
+    { 
+        InputAttributes.push_back(desc);
+    }
     
 }
 

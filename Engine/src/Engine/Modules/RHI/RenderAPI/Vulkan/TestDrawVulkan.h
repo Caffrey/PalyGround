@@ -3,15 +3,18 @@
 #include "vulkan/vulkan.h"
 #include "Core/Math/vector3.h"
 #include "VulaknContext.h"
+#include "VulkanBuffer.h"
+
 class TestDrawVulkan
 {
 public:
-    struct VertexStruct
+    TestDrawVulkan();
+    struct TestVertexStruct 
     {
     public:
         Vector3 pos;
-        Vector3 color;
         Vector3 normal;
+        Vector3 color;
     };
     
     void Draw(VkCommandBuffer& Buffer);
@@ -26,7 +29,7 @@ public:
     void createRenderPass(VulkanContext& Context);
     void load_shader_module(VulkanContext& Context, const char*FilePath, VkShaderModule* OutModule);
     
-    std::vector<VertexStruct> Vertex;
+    std::vector<TestVertexStruct> Vertex;
     VmaAllocation VertexAllocation;
 
     VkPipelineLayout PipelineLayout;
@@ -42,4 +45,8 @@ public:
 VkRenderPass renderPass;
     VkShaderModule VertexShader;
     VkShaderModule PixelShader;
+
+
+    VertexFormat m_VertexFormat;
+    VulkanVertexBuffer* NewVertexBuffer;
 };
