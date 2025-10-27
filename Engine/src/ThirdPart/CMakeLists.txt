@@ -35,12 +35,6 @@ target_link_libraries(XEngine spdlog::spdlog)
 
 
 
-target_link_libraries(XTestCase SDL3::SDL3)
-target_link_libraries(XTestCase Vulkan::Vulkan)
-target_link_libraries(XTestCase GPUOpen::VulkanMemoryAllocator)
-target_link_libraries(XTestCase vk-bootstrap::vk-bootstrap)
-target_link_libraries(XTestCase bgfx::bgfx)
-target_link_libraries(XTestCase imgui)
 target_link_libraries(XTestCase tomlplusplus::tomlplusplus)
 target_link_libraries(XTestCase RTTR::Core)
 target_link_libraries(XTestCase Taskflow::Taskflow)
