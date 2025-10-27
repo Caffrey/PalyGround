@@ -16,6 +16,11 @@ add_executable(XEngine ${EngineSourceFiles} ${EngineHeaderFiles} ${EditorSourceF
 target_include_directories(XEngine PUBLIC src/Editor)
 target_include_directories(XEngine PUBLIC src/Engine)
 target_include_directories(XEngine PUBLIC src)
+
+
+add_executable(XTestCase src/TestCase/main.cpp)
+target_include_directories(XTestCase PUBLIC src/TestCase)
+
 #-----------------------------
 # #控制好库文件和Exe在同一个目录
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)    # 可执行文件

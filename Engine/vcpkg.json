@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "bgfx",
+    "spdlog",
     "tomlplusplus",
     "tracy",
     "rttr",
