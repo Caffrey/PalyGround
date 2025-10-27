@@ -1,5 +1,11 @@
 {
   "dependencies": [
+    "bgfx",
+    "tomlplusplus",
+    "tracy",
+    "rttr",
+    "taskflow",
+    "imgui",
     "vk-bootstrap",
     "vulkan",
     "vulkan-memory-allocator",
