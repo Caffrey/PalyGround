@@ -17,9 +17,11 @@ target_link_libraries(XEngine vk-bootstrap::vk-bootstrap)
 ##bgfx
 find_package(bgfx CONFIG REQUIRED)
 target_link_libraries(XEngine bgfx::bgfx)
+target_compile_options(XEngine PUBLIC "/Zc:__cplusplus")
+target_compile_options(XEngine PUBLIC "/Zc:preprocessor")
 
 find_package(imgui CONFIG REQUIRED)
-target_link_libraries(XEngine imgui)
+target_link_libraries(XEngine imgui::imgui)
 
 find_package(tomlplusplus CONFIG REQUIRED)
 target_link_libraries(XEngine tomlplusplus::tomlplusplus)

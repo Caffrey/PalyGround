@@ -6,7 +6,19 @@
     "tracy",
     "rttr",
     "taskflow",
-    "imgui",
+    {
+      "name":"imgui",
+      "features":
+      [
+        "dx11-binding",
+        "dx12-binding",
+        "sdl3-binding",
+        "sdl3-renderer-binding",
+        "vulkan-binding",
+        "opengl2-binding",
+        "opengl3-binding"
+      ]
+    },
     "vk-bootstrap",
     "vulkan",
     "vulkan-memory-allocator",

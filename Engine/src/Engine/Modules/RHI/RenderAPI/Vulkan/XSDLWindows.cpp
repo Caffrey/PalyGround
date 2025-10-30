@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 
 #include "VulkanInterface.h"
+#include "Modules/RHI/RenderAPI/bgfx/BgfxRHIInterface.h"
 
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
@@ -22,15 +23,15 @@ void XSDLWindows::InitWindows()
         // return SDL_APP_FAILURE;
     }
 
-    Width = 1920;
-    Height = 1080;
+    Width = 1280;
+    Height = 790;
 
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
     Windows = SDL_CreateWindow("SDLWindow", Width, Height, window_flags);
     auto error= SDL_GetError();
 
     this->Editor->InitEditor(this);
-    this->RHIInterface = new VulkanRHIInterface();
+    this->RHIInterface = new BgfxRHIInterface();
     this->RHIInterface->Init(this);
 }
 
@@ -44,10 +45,10 @@ void XSDLWindows::Tick()
 
 void XSDLWindows::EventHandle()
 {
-    SDL_Event Event;
-    if(SDL_PollEvent(&Event) == true)
-    {
-        if(Event.type == SDL_EVENT_QUIT)
-            IsApplicationQuti = true;
-    }
+    // SDL_Event Event;
+    // if(SDL_PollEvent(&Event) == true)
+    // {
+    //     if(Event.type == SDL_EVENT_QUIT)
+    //         IsApplicationQuti = true;
+    // }
 }
