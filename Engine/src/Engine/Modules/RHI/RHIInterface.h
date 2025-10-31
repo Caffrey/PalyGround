@@ -21,7 +21,9 @@ public:
 public:
     //Buffer
     virtual RHIBuffer* CreateVertexBuffer() = 0;
+    virtual RHIBuffer* CreateVertexBuffer2(RHIVertexLayoutDesc){return nullptr;};
     virtual RHITexture* CreateTexture() = 0;
+    virtual RHITexture* CreateTexture2D() = 0;
     virtual RHITexture* CreateRenderTarget() = 0;
 
     //Shader

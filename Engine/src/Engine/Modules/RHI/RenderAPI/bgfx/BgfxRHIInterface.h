@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "BgfxRHIBuffer.h"
 #include "Modules/RHI/RHIInterface.h"
 #include "Modules/RHI/RenderAPI/Vulkan/XSDLWindows.h"
 
@@ -12,20 +13,24 @@ public:
     XSDLWindows * SDLWindow;
     virtual void TestDrawLoop(){};
 
-    
 public:
     //Buffer
-    virtual RHIBuffer* CreateVertexBuffer() {return nullptr;};
-    virtual RHITexture* CreateTexture() {return nullptr;};
-    virtual RHITexture* CreateRenderTarget() {return nullptr;};
+    virtual RHIBuffer* CreateVertexBuffer() override{return nullptr;};
+    virtual RHIBuffer* CreateVertexBuffer2(){return new BgfxRHIVertexBuffer();};
+    virtual RHIBuffer* CreateIndexBuffer(){return new BgfxRHIIndexBuffer();};
+    virtual RHITexture* CreateTexture2D() override{return new RHITexture2D();};
+    
+    
+    RHITexture* CreateTexture() override{return nullptr;};
+    RHITexture* CreateRenderTarget() override{return nullptr;};
 
     //Shader
-    virtual RHIShader* CreateVertexShader() {return nullptr;};
-    virtual RHIShader* CreatePixelShader() {return nullptr;};
-    virtual RHIShader* CreateComputeShader() {return nullptr;};
+    RHIShader* CreateVertexShader()override {return nullptr;};
+    RHIShader* CreatePixelShader() override{return nullptr;};
+    RHIShader* CreateComputeShader() override{return nullptr;};
 
     //Command
-    virtual RHICommandBuffer* GetCommandBuffer() {return nullptr;};
+    virtual RHICommandBuffer* GetCommandBuffer()override {return nullptr;};
     virtual void ExecuteCommandBuffer(RHICommandBuffer*) {};
     virtual void SubmitCommands() {};
 };
